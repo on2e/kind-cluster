@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: ingress-nginx
+
+resources:
+  - https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.13.2/deploy/static/provider/kind/deploy.yaml
+
+patches:
+  - path: ingress-nginx-controller-configmap.yaml
+  - patch: |-
+      - op: add
+        path: /spec/template/spec/nodeSelector/node-role.kubernetes.io~1control-plane
+        value: ""
+    target:
+      kind: Deployment
+      name: ingress-nginx-controller
