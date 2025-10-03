@@ -1,0 +1,65 @@
+on:
+  workflow_call:
+    inputs:
+      name:
+        type: string
+        required: true
+
+env:
+  MANIFEST: deploy/${{ inputs.name }}/install.yaml
+
+jobs:
+  render-manifest:
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Kustomize
+        run: |
+          KUSTOMIZE_VERSION="v5.7.1"
+
+          curl -sLO "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz"
+          tar xzf "kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz"
+          chmod +x kustomize
+          sudo mv kustomize /usr/bin/kustomize
+        working-directory: /tmp
+
+      - name: Render manifest
+        run: |
+          { echo '# THIS FILE WAS AUTOMATICALLY GENERATED. DO NOT EDIT.'; kustomize build deploy/${{ inputs.name }}; } > ${{ env.MANIFEST }}
+
+      - name: Push changes and create pull request
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ -z "$(git status --porcelain -- ${{ env.MANIFEST }})" ]]; then
+            echo "No changes to ${{ env.MANIFEST }}"
+            exit 0
+          fi
+
+          PR_BRANCH="rendered-manifests-${{ inputs.name }}"
+          COMMIT_MSG="Render manifest for ${{ inputs.name }}"
+
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git show-ref --verify --quiet "refs/heads/$PR_BRANCH"; then
+            echo "Deleting existing branch '$PR_BRANCH' from local Git repository to avoid conflict"
+            git branch -D "$PR_BRANCH"
+          fi
+          if git show-ref --verify --quiet "refs/remotes/origin/$PR_BRANCH"; then
+            echo "Deleting existing branch '$PR_BRANCH' from remote Git repository to avoid conflict"
+            git push origin --delete "$PR_BRANCH"
+          fi
+
+          git checkout -b "$PR_BRANCH"
+          git add ${{ env.MANIFEST }}
+          git commit -s -m "$COMMIT_MSG"
+          git push -u origin "$PR_BRANCH"
+          gh pr create --base main --head "$PR_BRANCH" --title "$COMMIT_MSG" --body ""

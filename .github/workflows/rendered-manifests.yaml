@@ -1,0 +1,35 @@
+name: Rendered Manifests
+
+on:
+  push:
+    branches:
+      - main
+    # paths:
+    #   - "deploy/**"
+
+jobs:
+  changes:
+    outputs:
+      ingress-nginx: ${{ steps.filter.outputs.ingress-nginx }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Detect changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            ingress-nginx:
+              - 'deploy/ingress-nginx/**'
+
+  ingress-nginx:
+    needs: changes
+    # if: needs.changes.outputs.ingress-nginx == 'true'
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: ./.github/workflows/reusable-rendered-manifests.yaml
+    with:
+      name: ingress-nginx
