@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-    # paths:
-    #   - "deploy/**"
+    paths:
+      - "deploy/**"
 
 jobs:
   changes:
@@ -26,7 +26,7 @@ jobs:
 
   ingress-nginx:
     needs: changes
-    # if: needs.changes.outputs.ingress-nginx == 'true'
+    if: needs.changes.outputs.ingress-nginx == 'true'
     permissions:
       contents: write
       pull-requests: write
