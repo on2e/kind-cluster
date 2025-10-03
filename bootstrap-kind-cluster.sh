@@ -5,7 +5,7 @@ set -o nounset
 set -o pipefail
 
 if ! command -v kind &>/dev/null; then
-  echo "kind is not installed, aborting"
+  echo "kind is missing. Install it first."
   exit 1
 fi
 
@@ -17,7 +17,7 @@ KIND_CONFIG=${KIND_CONFIG:-"${REPO_DIR}/config.yaml"}
 KIND_LOG_VERBOSITY=${KIND_LOG_VERBOSITY:-0}
 
 if kind get clusters -q | grep -x "${KIND_CLUSTER_NAME}" >/dev/null; then
-  echo "kind cluster with name \"${KIND_CLUSTER_NAME}\" already exists, skipping"
+  echo "kind cluster with name \"${KIND_CLUSTER_NAME}\" already exists"
   exit 0
 fi
 
