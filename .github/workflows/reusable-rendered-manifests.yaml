@@ -20,7 +20,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Kustomize
+      - name: Install Kustomize
         run: |
           KUSTOMIZE_VERSION="v5.7.1"
 
