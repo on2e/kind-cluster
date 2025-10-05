@@ -44,7 +44,7 @@ jobs:
           fi
 
           PR_BRANCH="rendered-manifests-${{ inputs.name }}"
-          COMMIT_MSG="Render manifest for ${{ inputs.name }}"
+          COMMIT_MSG="${{ inputs.name }}: Render manifest"
 
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
