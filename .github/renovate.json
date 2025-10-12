@@ -1,0 +1,51 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":gitSignOff",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "automergeType": "branch",
+  "rebaseWhen": "behind-base-branch",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update KIND node image in KIND_NODE_IMAGE file",
+      "managerFilePatterns": ["/^KIND_NODE_IMAGE$/"],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker",
+      "matchStrings": [
+        "(?<depName>kindest/node):(?<currentValue>v\\d+\\.\\d+\\.\\d+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?"
+      ]
+    },
+    {
+      "customType": "regex",
+      "description": "Update kustomization remote resource references",
+      "managerFilePatterns": ["/(^|/)kustomization\\.ya?ml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.+?)(?: depName=(?<depName>.+?))?(?: packageName=(?<packageName>.+?))?(?: versioning=(?<versioning>.+?))?(?: extractVersion=(?<extractVersion>.+?))?\\s.*?https://raw.githubusercontent.com/kubernetes/ingress-nginx/(?<currentValue>.+?)/deploy/static/provider/kind/deploy.yaml\\s"
+      ]
+    },
+    {
+      "customType": "regex",
+      "description": "Update `*_VERSION: <version>` variables in GitHub Actions workflows",
+      "managerFilePatterns": ["/^\\.github/workflows/[^/]+\\.ya?ml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.+?)(?: depName=(?<depName>.+?))?(?: packageName=(?<packageName>.+?))?(?: versioning=(?<versioning>.+?))?(?: extractVersion=(?<extractVersion>.+?))?\\s.+?_VERSION\\s*:\\s+(?<currentValue>.+?)\\s"
+      ]
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Automerge non-major updates",
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "automerge": true
+    },
+    {
+      "description": "Pin digests for KIND node images",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["kindest/node"],
+      "pinDigests": true
+    }
+  ]
+}
