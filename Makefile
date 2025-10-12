@@ -2,7 +2,7 @@ SHELL = /usr/bin/env bash
 .SHELLFLAGS = -o errexit -o nounset -o pipefail -c
 
 KIND_CLUSTER_NAME  ?= kind
-KIND_NODE_IMAGE    ?= kindest/node:v1.34.0@sha256:7416a61b42b1662ca6ca89f02028ac133a309a2a30ba309614e8ec94d976dc5a
+KIND_NODE_IMAGE    ?= $(shell cat KIND_NODE_IMAGE)
 KIND_CONFIG        ?= $(CURDIR)/config.yaml
 KIND_LOG_VERBOSITY ?= 0
 
