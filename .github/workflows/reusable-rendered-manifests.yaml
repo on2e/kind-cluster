@@ -6,7 +6,7 @@ on:
         required: true
 
 env:
-  MANIFEST: deploy/${{ inputs.name }}/install.yaml
+  MANIFEST: manifests/${{ inputs.name }}/install.yaml
 
 jobs:
   render-manifest:
@@ -33,7 +33,7 @@ jobs:
 
       - name: Render manifest
         run: |
-          { echo '# THIS FILE WAS AUTOMATICALLY GENERATED. DO NOT EDIT.'; kustomize build deploy/${{ inputs.name }}; } > ${{ env.MANIFEST }}
+          { echo '# THIS FILE WAS AUTOMATICALLY GENERATED. DO NOT EDIT.'; kustomize build manifests/${{ inputs.name }}; } > ${{ env.MANIFEST }}
 
       - name: Push changes and create pull request
         env:

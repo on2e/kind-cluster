@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "deploy/**"
+      - "manifests/**"
 
 jobs:
   changes:
@@ -22,7 +22,7 @@ jobs:
         with:
           filters: |
             ingress-nginx:
-              - 'deploy/ingress-nginx/**'
+              - 'manifests/ingress-nginx/**'
 
   ingress-nginx:
     needs: changes
