@@ -7,9 +7,11 @@ on:
 
 env:
   MANIFEST: manifests/${{ inputs.name }}/install.yaml
+  PR_BRANCH: rendered-manifests/${{ inputs.name }}
 
 jobs:
   render-manifest:
+    if: github.ref_type == 'branch'
     permissions:
       contents: write
       pull-requests: write
@@ -25,42 +27,70 @@ jobs:
           # renovate: datasource=github-releases packageName=kubernetes-sigs/kustomize extractVersion=^kustomize/(?<version>.+)$
           KUSTOMIZE_VERSION: v5.7.1
         run: |
-          curl -sLO "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${{ env.KUSTOMIZE_VERSION }}/kustomize_${{ env.KUSTOMIZE_VERSION }}_linux_amd64.tar.gz"
-          tar xzf kustomize_${{ env.KUSTOMIZE_VERSION }}_linux_amd64.tar.gz
+          curl -sSfLO "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz"
+          tar -xzf "kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz"
           chmod +x kustomize
           sudo mv kustomize /usr/bin/kustomize
         working-directory: /tmp
 
       - name: Render manifest
         run: |
-          { echo '# THIS FILE WAS AUTOMATICALLY GENERATED. DO NOT EDIT.'; kustomize build manifests/${{ inputs.name }}; } > ${{ env.MANIFEST }}
+          { echo '# THIS FILE WAS AUTOMATICALLY GENERATED. DO NOT EDIT.'; kustomize build manifests/${{ inputs.name }}; } > "$MANIFEST"
 
-      - name: Push changes and create pull request
+      - name: Check if PR already exists
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [[ -z "$(git status --porcelain -- ${{ env.MANIFEST }})" ]]; then
-            echo "No changes to ${{ env.MANIFEST }}"
-            exit 0
+          gh pr list --base "$GITHUB_REF_NAME" --head "$PR_BRANCH" --json number,title,url > pr.json
+          PR_EXISTS="$(! jq -e 'isempty(.[])' pr.json >/dev/null && echo "true" || echo "false")"
+          echo "PR_EXISTS=$PR_EXISTS" >> "$GITHUB_ENV"
+          if [[ "$PR_EXISTS" = "true" ]]; then
+            echo -e "A pull request for branch '$PR_BRANCH' into branch '$GITHUB_REF_NAME' already exists:\n$(jq '.[0]' pr.json)"
           fi
+          rm -rf pr.json
 
-          PR_BRANCH="rendered-manifests-${{ inputs.name }}"
-          COMMIT_MSG="${{ inputs.name }}: Render manifest"
-
+      - name: Push changes and create/update PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          if git show-ref --verify --quiet "refs/heads/$PR_BRANCH"; then
-            echo "Deleting existing branch '$PR_BRANCH' from local Git repository to avoid conflict"
-            git branch -D "$PR_BRANCH"
-          fi
-          if git show-ref --verify --quiet "refs/remotes/origin/$PR_BRANCH"; then
-            echo "Deleting existing branch '$PR_BRANCH' from remote Git repository to avoid conflict"
-            git push origin --delete "$PR_BRANCH"
+          if [[ -z "$(git status --porcelain -- "$MANIFEST")" ]]; then
+            echo "No changes to '$MANIFEST' on branch '$GITHUB_REF_NAME'"
+            if [[ "$PR_EXISTS" = "true" ]]; then
+              echo "Closing existing pull request and deleting branch '$PR_BRANCH'"
+              gh pr comment "$PR_BRANCH" --body "Closing this PR because manifest is up to date on base branch."
+              gh pr close "$PR_BRANCH" --delete-branch
+            fi
+            exit 0
           fi
 
-          git checkout -b "$PR_BRANCH"
-          git add ${{ env.MANIFEST }}
+          if git show-ref --verify --quiet "refs/remotes/origin/$PR_BRANCH"; then
+            echo "Remote branch '$PR_BRANCH' already exists, will rebase and force-push if behind base branch"
+            git stash push -u -- "$MANIFEST"
+            git checkout -b "$PR_BRANCH" "origin/$PR_BRANCH"
+            git rebase "$GITHUB_REF_NAME"
+            git checkout "stash@{0}" -- "$MANIFEST"
+            git stash drop
+            if [[ -z "$(git status --porcelain -- "$MANIFEST")" ]]; then
+              echo "No changes to '$MANIFEST' on branch '$PR_BRANCH'"
+              exit 0
+            fi
+          else
+            git checkout -b "$PR_BRANCH"
+          fi
+
+          COMMIT_SHA_SHORT="$(git rev-parse --short "$GITHUB_SHA")"
+          COMMIT_MSG="${{ inputs.name }}: Render manifest at $COMMIT_SHA_SHORT"
+          PR_BODY="This PR renders manifest $MANIFEST at $COMMIT_SHA_SHORT."
+
+          git add "$MANIFEST"
           git commit -s -m "$COMMIT_MSG"
-          git push -u origin "$PR_BRANCH"
-          gh pr create --base main --head "$PR_BRANCH" --title "$COMMIT_MSG" --body ""
+          git push -f origin "$PR_BRANCH"
+
+          if [[ "$PR_EXISTS" != "true" ]]; then
+            gh pr create --base "$GITHUB_REF_NAME" --head "$PR_BRANCH" --title "$COMMIT_MSG" --body "$PR_BODY"
+          else
+            gh pr edit "$PR_BRANCH" --title "$COMMIT_MSG" --body "$PR_BODY"
+          fi
