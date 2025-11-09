@@ -9,6 +9,7 @@
   "automergeType": "pr",
   "platformAutomerge": true,
   "rebaseWhen": "behind-base-branch",
+  "ignoreTests": false,
   "customManagers": [
     {
       "customType": "regex",
