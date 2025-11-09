@@ -5,7 +5,9 @@
     ":gitSignOff",
     "helpers:pinGitHubActionDigests"
   ],
+  "prCreation": "immediate",
   "automergeType": "branch",
+  "platformAutomerge": true,
   "rebaseWhen": "behind-base-branch",
   "customManagers": [
     {
