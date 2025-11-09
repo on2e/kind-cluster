@@ -6,7 +6,7 @@
     "helpers:pinGitHubActionDigests"
   ],
   "prCreation": "immediate",
-  "automergeType": "branch",
+  "automergeType": "pr",
   "platformAutomerge": true,
   "rebaseWhen": "behind-base-branch",
   "customManagers": [
