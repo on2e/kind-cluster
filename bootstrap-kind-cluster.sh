@@ -5,7 +5,7 @@ set -o nounset
 set -o pipefail
 
 if ! command -v kind &>/dev/null; then
-  echo "kind not found. Install it first to continue."
+  echo "kind not found. Install it first to continue." >&2
   exit 1
 fi
 
