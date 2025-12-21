@@ -10,7 +10,7 @@ KIND_CONFIG        ?= $(CURDIR)/config.yaml
 KIND_LOG_VERBOSITY ?= 0
 
 .PHONY: all
-all: create
+all: create install-ingress-nginx
 
 ##@ General
 
@@ -57,3 +57,19 @@ create: ## Create kind cluster
 .PHONY: delete
 delete: ## Delete kind cluster
 	@kind delete cluster --name $(KIND_CLUSTER_NAME)
+
+##@ Deployments
+
+.PHONY: install-ingress-nginx
+install-ingress-nginx: ## Install Ingress NGINX controller (specified in deployments/ingress-nginx/install.yaml)
+	@echo
+	@echo -e "Installing \033[32mIngress NGINX controller\033[0m"
+	@echo
+	@kubectl apply -f deployments/ingress-nginx/install.yaml
+
+.PHONY: uninstall-ingress-nginx
+uninstall-ingress-nginx: ## Uninstall Ingress NGINX controller (specified in deployments/ingress-nginx/install.yaml)
+	@echo
+	@echo -e "Uninstalling \033[32mIngress NGINX controller\033[0m"
+	@echo
+	@kubectl delete -f deployments/ingress-nginx/install.yaml
