@@ -9,10 +9,10 @@ resources:
 
 patches:
   - path: controller-configmap.yaml
-  - patch: |-
+  - target:
+      kind: Deployment
+      name: ingress-nginx-controller
+    patch: |-
       - op: add
         path: /spec/template/spec/nodeSelector/node-role.kubernetes.io~1control-plane
         value: ""
-    target:
-      kind: Deployment
-      name: ingress-nginx-controller
