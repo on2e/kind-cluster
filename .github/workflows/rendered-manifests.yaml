@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - "manifests/**"
-      - "!manifests/**/install.yaml"
+      - "deployments/**"
+      - "!deployments/**/install.yaml"
 
 jobs:
   changes:
@@ -23,7 +23,7 @@ jobs:
         with:
           filters: |
             ingress-nginx:
-              - 'manifests/ingress-nginx/**'
+              - 'deployments/ingress-nginx/**'
 
   ingress-nginx:
     needs: changes

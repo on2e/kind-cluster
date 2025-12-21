@@ -6,7 +6,7 @@ on:
         required: true
 
 env:
-  MANIFEST: manifests/${{ inputs.name }}/install.yaml
+  MANIFEST: deployments/${{ inputs.name }}/install.yaml
   PR_BRANCH: rendered-manifests/${{ inputs.name }}
 
 jobs:
@@ -35,7 +35,7 @@ jobs:
 
       - name: Render manifest
         run: |
-          { echo '# THIS FILE WAS AUTOMATICALLY GENERATED. DO NOT EDIT.'; kustomize build manifests/${{ inputs.name }}; } > "$MANIFEST"
+          { echo '# THIS FILE WAS AUTOMATICALLY GENERATED. DO NOT EDIT.'; kustomize build deployments/${{ inputs.name }}; } > "$MANIFEST"
 
       - name: Check if PR already exists
         env:
