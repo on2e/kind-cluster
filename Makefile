@@ -19,11 +19,20 @@ help: ## Display this help message
 
 .PHONY: create
 create: ## Create kind cluster
-	@KIND_CLUSTER_NAME=$(KIND_CLUSTER_NAME) \
-	KIND_NODE_IMAGE=$(KIND_NODE_IMAGE) \
-	KIND_CONFIG=$(KIND_CONFIG) \
-	KIND_LOG_VERBOSITY=$(KIND_LOG_VERBOSITY) \
-	./bootstrap-kind-cluster.sh
+	@if ! command -v kind &>/dev/null; then \
+		echo "kind not found. Install it first or set \$$PATH to continue." >&2; \
+		exit 1; \
+	fi
+	@if kind get clusters -q | grep -x $(KIND_CLUSTER_NAME) >/dev/null; then \
+		echo "kind cluster with name \"$(KIND_CLUSTER_NAME)\" already exists"; \
+	else \
+		kind create cluster \
+			--name $(KIND_CLUSTER_NAME) \
+			--image $(KIND_NODE_IMAGE) \
+			--config $(KIND_CONFIG) \
+			--verbosity $(KIND_LOG_VERBOSITY) \
+			--retain; \
+	fi
 
 .PHONY: delete
 delete: ## Delete kind cluster
