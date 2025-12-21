@@ -1,6 +1,9 @@
 SHELL = /usr/bin/env bash
 .SHELLFLAGS = -o errexit -o nounset -o pipefail -c
 
+KIND               ?= $(HOME)/.local/bin/kind
+KIND_VERSION       ?= v0.31.0
+
 KIND_CLUSTER_NAME  ?= kind
 KIND_NODE_IMAGE    ?= $(shell cat KIND_NODE_IMAGE)
 KIND_CONFIG        ?= $(CURDIR)/config.yaml
@@ -16,6 +19,23 @@ help: ## Display this help message
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 ##@ Kind
+
+define kind_version_has
+$$($(KIND) version | cut -d' ' -f2)
+endef
+
+.PHONY: kind
+kind: ## Install kind from release binary (if wrong version is installed, it will be removed)
+	@if [[ -x $(KIND) && $(kind_version_has) != $(KIND_VERSION) ]]; then \
+		echo "$(KIND) version is $(kind_version_has), but $(KIND_VERSION) is specified. Removing it before installing."; \
+		rm -rf $(KIND); \
+	fi
+	@if [[ ! -x $(KIND) ]]; then \
+		curl -sSfL -o kind "https://kind.sigs.k8s.io/dl/$(KIND_VERSION)/kind-linux-amd64"; \
+		chmod +x kind; \
+		mv kind $(KIND); \
+	fi
+	@echo $(kind_version_has)
 
 .PHONY: create
 create: ## Create kind cluster
