@@ -2,7 +2,7 @@ SHELL = /usr/bin/env bash
 .SHELLFLAGS = -o errexit -o nounset -o pipefail -c
 
 KIND               ?= $(HOME)/.local/bin/kind
-KIND_VERSION       ?= v0.31.0
+KIND_VERSION       ?= $(shell cat KIND_VERSION)
 
 KIND_CLUSTER_NAME  ?= kind
 KIND_NODE_IMAGE    ?= $(shell cat KIND_NODE_IMAGE)
