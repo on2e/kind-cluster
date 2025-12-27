@@ -4,7 +4,6 @@ kind: Kustomization
 namespace: ingress-nginx
 
 resources:
-  # renovate: datasource=github-releases packageName=kubernetes/ingress-nginx versioning=regex:^controller-v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$
   - https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.14.1/deploy/static/provider/kind/deploy.yaml
 
 patches:

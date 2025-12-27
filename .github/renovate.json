@@ -32,10 +32,11 @@
     },
     {
       "customType": "regex",
-      "description": "Update kustomization remote resource references",
+      "description": "Update raw GitHub URLs using tags in kustomizations",
       "managerFilePatterns": ["/(^|/)kustomization\\.ya?ml$/"],
+      "datasourceTemplate": "github-tags",
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>.+?)(?: depName=(?<depName>.+?))?(?: packageName=(?<packageName>.+?))?(?: versioning=(?<versioning>.+?))?(?: extractVersion=(?<extractVersion>.+?))?\\s.*?https://raw.githubusercontent.com/kubernetes/ingress-nginx/(?<currentValue>.+?)/deploy/static/provider/kind/deploy.yaml\\s"
+        "https://raw\\.githubusercontent\\.com/(?<depName>[^/]+/[^/]+)/(?<currentValue>[^/]+)"
       ]
     },
     {
@@ -58,6 +59,13 @@
       "matchDatasources": ["docker"],
       "matchPackageNames": ["kindest/node"],
       "pinDigests": true
+    },
+    {
+      "description": "Update kubernetes/ingress-nginx Kustomize dependencies with non-SemVer tags",
+      "matchFileNames": ["deployments/ingress-nginx/kustomization.yaml"],
+      "matchDatasources": ["github-tags"],
+      "matchPackageNames": ["kubernetes/ingress-nginx"],
+      "versioning": "regex:^controller-v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
     }
   ]
 }
