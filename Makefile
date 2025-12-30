@@ -20,14 +20,14 @@ help: ## Display this help message
 
 ##@ Kind
 
-define kind_version_has
+define kind_version
 $$($(KIND) version | cut -d' ' -f2)
 endef
 
 .PHONY: kind
 kind: ## Install kind from release binary (if wrong version is installed, it will be removed)
-	@if [[ -x $(KIND) && $(kind_version_has) != $(KIND_VERSION) ]]; then \
-		echo "$(KIND) version is $(kind_version_has), but $(KIND_VERSION) is specified. Removing it before installing."; \
+	@if [[ -x $(KIND) && $(kind_version) != $(KIND_VERSION) ]]; then \
+		echo "$(KIND) version is $(kind_version), but $(KIND_VERSION) is specified. Removing it before installing."; \
 		rm -rf $(KIND); \
 	fi
 	@if [[ ! -x $(KIND) ]]; then \
@@ -35,12 +35,12 @@ kind: ## Install kind from release binary (if wrong version is installed, it wil
 		chmod +x kind; \
 		mv kind $(KIND); \
 	fi
-	@echo $(kind_version_has)
+	@echo $(kind_version)
 
 .PHONY: create
 create: ## Create kind cluster
 	@if ! command -v kind &>/dev/null; then \
-		echo "kind not found. Install it first or set \$$PATH to continue." >&2; \
+		echo >&2 "kind not found. Install it first or set \$$PATH to continue."; \
 		exit 1; \
 	fi
 	@if kind get clusters -q | grep -x $(KIND_CLUSTER_NAME) >/dev/null; then \
@@ -61,15 +61,15 @@ delete: ## Delete kind cluster
 ##@ Deployments
 
 .PHONY: install-ingress-nginx
-install-ingress-nginx: ## Install Ingress NGINX controller (specified in deployments/ingress-nginx/install.yaml)
+install-ingress-nginx: ## Install ingress-nginx (specified in deployments/ingress-nginx/install.yaml)
 	@echo
-	@echo -e "Installing \033[32mIngress NGINX controller\033[0m"
+	@echo -e "Installing \033[32mingress-nginx\033[0m"
 	@echo
 	@kubectl apply -f deployments/ingress-nginx/install.yaml
 
 .PHONY: uninstall-ingress-nginx
-uninstall-ingress-nginx: ## Uninstall Ingress NGINX controller (specified in deployments/ingress-nginx/install.yaml)
+uninstall-ingress-nginx: ## Uninstall ingress-nginx (specified in deployments/ingress-nginx/install.yaml)
 	@echo
-	@echo -e "Uninstalling \033[32mIngress NGINX controller\033[0m"
+	@echo -e "Uninstalling \033[32mingress-nginx\033[0m"
 	@echo
 	@kubectl delete -f deployments/ingress-nginx/install.yaml
