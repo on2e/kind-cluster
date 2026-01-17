@@ -22,6 +22,11 @@ spec:
             - name: postgresql
               containerPort: 5432
               protocol: TCP
+          # livenessProbe: {}
+          # readinessProbe: {}
+          # startupProbe: {}
+          # resources: {}
+          # securityContext: {}
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql

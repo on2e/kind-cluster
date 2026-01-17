@@ -36,7 +36,7 @@ jobs:
       - name: Render manifest
         run: |
           echo "# THIS FILE WAS AUTOMATICALLY GENERATED. DO NOT EDIT." > "$MANIFEST"
-          kustomize build deployments/${{ inputs.name }} >> "$MANIFEST"
+          kustomize build deployments/${{ inputs.name }}/base >> "$MANIFEST"
 
       - name: Check if PR already exists
         env:
