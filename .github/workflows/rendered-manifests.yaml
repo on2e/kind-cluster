@@ -31,6 +31,6 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    uses: ./.github/workflows/reusable-rendered-manifests.yaml
+    uses: ./.github/workflows/reuse-rendered-manifests.yaml
     with:
       name: ingress-nginx
