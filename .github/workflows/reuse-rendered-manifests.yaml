@@ -69,16 +69,16 @@ jobs:
 
           if git show-ref --verify --quiet "refs/remotes/origin/$PR_BRANCH"; then
             echo "Remote branch '$PR_BRANCH' already exists, will rebase and force-push if behind base branch"
-            # Stash away the generated manifest before switching to the PR branch
-            git stash push -u -- "$MANIFEST"
+            # Copy manifest outside of git
+            MANIFEST_TEMP="$(mktemp)" && cp "$MANIFEST" "$MANIFEST_TEMP"
+            # Reset working tree in order to switch branches
+            git reset --hard && git clean -dfx
             # Create a local branch just like the remote-tracking branch
             git checkout -b "$PR_BRANCH" "origin/$PR_BRANCH"
             # Rebase PR branch onto base branch to keep PR up to date
             git rebase "$GITHUB_REF_NAME"
-            # Stage the stashed manifest on the PR branch
-            git checkout "stash@{0}" -- "$MANIFEST"
-            # Drop stash entry
-            git stash drop
+            # Move manifest on the PR branch
+            mv "$MANIFEST_TEMP" "$MANIFEST"
             if [[ -z "$(git status --porcelain -- "$MANIFEST")" ]]; then
               echo "No changes to '$MANIFEST' on branch '$PR_BRANCH'"
               exit 0
