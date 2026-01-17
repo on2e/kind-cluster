@@ -12,6 +12,7 @@ jobs:
   changes:
     outputs:
       ingress-nginx: ${{ steps.filter.outputs.ingress-nginx }}
+      postgresql: ${{ steps.filter.outputs.postgresql }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -24,6 +25,8 @@ jobs:
           filters: |
             ingress-nginx:
               - 'deployments/ingress-nginx/**'
+            postgresql:
+              - 'deployments/postgresql/**'
 
   ingress-nginx:
     needs: changes
@@ -34,3 +37,13 @@ jobs:
     uses: ./.github/workflows/reuse-rendered-manifests.yaml
     with:
       name: ingress-nginx
+
+  postgresql:
+    needs: changes
+    if: needs.changes.outputs.postgresql == 'true'
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: ./.github/workflows/reuse-rendered-manifests.yaml
+    with:
+      name: postgresql
