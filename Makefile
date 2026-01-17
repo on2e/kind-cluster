@@ -73,3 +73,17 @@ uninstall-ingress-nginx: ## Uninstall ingress-nginx (specified in deployments/in
 	@echo -e "Uninstalling \033[32mingress-nginx\033[0m"
 	@echo
 	@kubectl delete -f deployments/ingress-nginx/install.yaml
+
+.PHONY: install-postgresql
+install-postgresql: ## Install postgresql (specified in deployments/postgresql/install.yaml)
+	@echo
+	@echo -e "Installing \033[32mpostgresql\033[0m"
+	@echo
+	@kubectl apply -f deployments/postgresql/install.yaml
+
+.PHONY: uninstall-postgresql
+uninstall-postgresql: ## Uninstall postgresql (specified in deployments/postgresql/install.yaml)
+	@echo
+	@echo -e "Uninstalling \033[32mpostgresql\033[0m"
+	@echo
+	@kubectl delete -f deployments/postgresql/install.yaml
