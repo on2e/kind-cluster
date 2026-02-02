@@ -7,7 +7,7 @@ KIND_CONFIG        ?= $(CURDIR)/config.yaml
 KIND_LOG_VERBOSITY ?= 0
 
 .PHONY: all
-all: create install-ingress-nginx
+all: create
 
 ##@ General
 
