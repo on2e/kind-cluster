@@ -13,15 +13,6 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Update KIND version in KIND_VERSION file",
-      "managerFilePatterns": ["/^KIND_VERSION$/"],
-      "datasourceTemplate": "github-releases",
-      "packageNameTemplate": "kubernetes-sigs/kind",
-      "versioningTemplate": "semver",
-      "matchStrings": ["(?<currentValue>v\\d+\\.\\d+\\.\\d+)"]
-    },
-    {
-      "customType": "regex",
       "description": "Update KIND node image in KIND_NODE_IMAGE file",
       "managerFilePatterns": ["/^KIND_NODE_IMAGE$/"],
       "datasourceTemplate": "docker",
