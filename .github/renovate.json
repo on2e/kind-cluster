@@ -5,6 +5,8 @@
     ":gitSignOff",
     "helpers:pinGitHubActionDigests"
   ],
+  "baseBranchPatterns": ["main"],
+  "semanticCommits": "enabled",
   "prCreation": "immediate",
   "automergeType": "pr",
   "platformAutomerge": true,
@@ -32,31 +34,39 @@
     },
     {
       "customType": "regex",
-      "description": "Update `*_VERSION: <version>` variables in GitHub Actions workflows",
+      "description": "Update `*_VERSION` variables (case insensitive) in GitHub Actions workflows",
       "managerFilePatterns": ["/^\\.github/workflows/[^/]+\\.ya?ml$/"],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>.+?)(?: depName=(?<depName>.+?))?(?: packageName=(?<packageName>.+?))?(?: versioning=(?<versioning>.+?))?(?: extractVersion=(?<extractVersion>.+?))?\\s.+?_VERSION\\s*:\\s+(?<currentValue>.+?)\\s"
+        "# renovate: datasource=(?<datasource>.+?) depName=(?<depName>.+?)(?: packageName=(?<packageName>.+?))?(?: versioning=(?<versioning>.+?))?(?: extractVersion=(?<extractVersion>.+?))?\\s+[a-zA-Z_][\\w]*?_(?i:VERSION)\\s*:\\s+['\"]?(?<currentValue>.+?)['\"]?\\s"
       ]
     }
   ],
   "packageRules": [
     {
-      "description": "Automerge non-major updates",
+      "description": "Auto-merge non-major updates",
       "matchUpdateTypes": ["minor", "patch", "digest"],
       "automerge": true
     },
     {
       "description": "Pin digests for KIND node images",
+      "matchPackageNames": ["/^kindest/node$/"],
       "matchDatasources": ["docker"],
-      "matchPackageNames": ["kindest/node"],
       "pinDigests": true
     },
     {
-      "description": "Update kubernetes/ingress-nginx Kustomize dependencies with non-SemVer tags",
-      "matchFileNames": ["deployments/ingress-nginx/kustomization.yaml"],
+      "description": "Configure ingress-nginx dependencies",
+      "matchPackageNames": ["/^kubernetes/ingress-nginx$/"],
       "matchDatasources": ["github-tags"],
-      "matchPackageNames": ["kubernetes/ingress-nginx"],
-      "versioning": "regex:^controller-v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
+      "versioning": "regex:^controller-v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$",
+      "separateMajorMinor": false,
+      "groupName": "ingress-nginx"
+    },
+    {
+      "description": "Configure postgresql dependencies",
+      "matchPackageNames": ["/^postgres$/"],
+      "matchDatasources": ["docker"],
+      "separateMajorMinor": false,
+      "groupName": "postgresql"
     }
   ]
 }
