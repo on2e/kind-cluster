@@ -16,4 +16,4 @@ resources:
 
 images:
   - name: postgres
-    newTag: "18.2"
+    newTag: "18.3"
