@@ -41,6 +41,11 @@
       "automerge": true
     },
     {
+      "description": "Set `ci` commit type for GitHub Actions updates",
+      "matchManagers": ["github-actions"],
+      "semanticCommitType": "ci"
+    },
+    {
       "description": "Pin digests for KIND node images",
       "matchPackageNames": ["/^kindest/node$/"],
       "matchDatasources": ["docker"],
