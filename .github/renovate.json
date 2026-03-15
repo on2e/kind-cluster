@@ -3,7 +3,8 @@
   "extends": [
     "config:recommended",
     ":gitSignOff",
-    "helpers:pinGitHubActionDigests"
+    "helpers:pinGitHubActionDigests",
+    "customManagers:githubActionsVersions"
   ],
   "baseBranchPatterns": ["main"],
   "semanticCommits": "enabled",
@@ -30,14 +31,6 @@
       "datasourceTemplate": "github-tags",
       "matchStrings": [
         "https://raw\\.githubusercontent\\.com/(?<depName>[^/]+/[^/]+)/(?<currentValue>[^/]+)"
-      ]
-    },
-    {
-      "customType": "regex",
-      "description": "Update `*_VERSION` variables (case insensitive) in GitHub Actions workflows",
-      "managerFilePatterns": ["/^\\.github/workflows/[^/]+\\.ya?ml$/"],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>.+?) depName=(?<depName>.+?)(?: packageName=(?<packageName>.+?))?(?: versioning=(?<versioning>.+?))?(?: extractVersion=(?<extractVersion>.+?))?\\s+[a-zA-Z_][\\w]*?_(?i:VERSION)\\s*:\\s+['\"]?(?<currentValue>.+?)['\"]?\\s"
       ]
     }
   ],
