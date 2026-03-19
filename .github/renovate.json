@@ -41,8 +41,11 @@
       "automerge": true
     },
     {
-      "description": "Set `ci` commit type for GitHub Actions updates",
-      "matchManagers": ["github-actions"],
+      "description": "Set `ci` commit type for CI updates",
+      "matchFileNames": [
+        "/^\\.github/(?:workflows|actions)/.+\\.ya?ml$/"
+      ],
+      "additionalBranchPrefix": "ci-",
       "semanticCommitType": "ci"
     },
     {
