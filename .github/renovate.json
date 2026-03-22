@@ -33,9 +33,7 @@
     },
     {
       "description": "Set `ci` commit type for CI updates",
-      "matchFileNames": [
-        "/^\\.github/(?:workflows|actions)/.+\\.ya?ml$/"
-      ],
+      "matchFileNames": ["/^\\.github/(?:workflows|actions)/.+\\.ya?ml$/"],
       "additionalBranchPrefix": "ci-",
       "semanticCommitType": "ci"
     },
@@ -46,19 +44,18 @@
       "pinDigests": true
     },
     {
-      "description": "Configure ingress-nginx dependencies",
-      "matchPackageNames": ["/^kubernetes/ingress-nginx$/"],
-      "matchDatasources": ["github-tags"],
-      "versioning": "regex:^controller-v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$",
-      "separateMajorMinor": false,
-      "groupName": "ingress-nginx"
+      "description": "Use directory name under `deployments/` as semantic commit scope and in `branchTopic` for deployment dependencies",
+      "matchFileNames": ["deployments/*/**"],
+      "semanticCommitScope": "{{{ lookup (split packageFileDir '/') 1 }}}",
+      "branchTopic": "{{{ lookup (split packageFileDir '/') 1 }}}-{{{newMajor}}}{{#if separateMinorPatch}}{{#if isPatch}}.{{{newMinor}}}{{/if}}{{/if}}{{#if separateMultipleMinor}}{{#if isMinor}}.{{{newMinor}}}{{/if}}{{/if}}.x{{#if isLockfileUpdate}}-lockfile{{/if}}",
+      "commitMessageTopic": "dependency references"
     },
     {
-      "description": "Configure postgresql dependencies",
-      "matchPackageNames": ["/^postgres$/"],
-      "matchDatasources": ["docker"],
-      "separateMajorMinor": false,
-      "groupName": "postgresql"
+      "description": "Use SemVer versioning for Ingress NGINX updates",
+      "matchPackageNames": ["/^kubernetes/ingress-nginx$/"],
+      "matchDatasources": ["github-tags"],
+      "versionCompatibility": "^(?<compatibility>controller)-(?<version>.+)$",
+      "versioning": "semver"
     }
   ]
 }
