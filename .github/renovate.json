@@ -44,11 +44,15 @@
       "pinDigests": true
     },
     {
-      "description": "Use directory name under `deployments/` as semantic commit scope and in `branchTopic` for deployment dependencies",
+      "description": "Use `<app-name>` as semantic commit scope for updates in the `deployments/<app-name>` directory",
       "matchFileNames": ["deployments/*/**"],
       "semanticCommitScope": "{{{ lookup (split packageFileDir '/') 1 }}}",
-      "branchTopic": "{{{ lookup (split packageFileDir '/') 1 }}}-{{{newMajor}}}{{#if separateMinorPatch}}{{#if isPatch}}.{{{newMinor}}}{{/if}}{{/if}}{{#if separateMultipleMinor}}{{#if isMinor}}.{{{newMinor}}}{{/if}}{{/if}}.x{{#if isLockfileUpdate}}-lockfile{{/if}}",
-      "commitMessageTopic": "dependency references"
+      "branchTopic": "{{{semanticCommitScope}}}-{{{newMajor}}}{{#if separateMinorPatch}}{{#if isPatch}}.{{{newMinor}}}{{/if}}{{/if}}{{#if separateMultipleMinor}}{{#if isMinor}}.{{{newMinor}}}{{/if}}{{/if}}.x",
+      "commitMessageTopic": "dependency references",
+      "group": {
+        "branchTopic": "{{{groupSlug}}}",
+        "commitMessageTopic": "dependency references"
+      }
     },
     {
       "description": "Use SemVer versioning for Ingress NGINX updates",
