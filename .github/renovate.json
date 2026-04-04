@@ -1,18 +1,11 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended",
-    ":gitSignOff",
-    "helpers:pinGitHubActionDigests",
-    "customManagers:githubActionsVersions"
+    "github>on2e/renovate-config",
+    ":automergeMinor",
+    ":automergeDigest",
+    ":skipStatusChecks"
   ],
-  "baseBranchPatterns": ["main"],
-  "semanticCommits": "enabled",
-  "prCreation": "immediate",
-  "automergeType": "pr",
-  "platformAutomerge": true,
-  "rebaseWhen": "behind-base-branch",
-  "ignoreTests": true,
   "customManagers": [
     {
       "customType": "regex",
@@ -26,17 +19,6 @@
     }
   ],
   "packageRules": [
-    {
-      "description": "Auto-merge non-major updates",
-      "matchUpdateTypes": ["minor", "patch", "digest"],
-      "automerge": true
-    },
-    {
-      "description": "Set `ci` commit type for CI updates",
-      "matchFileNames": ["/^\\.github/(?:workflows|actions)/.+\\.ya?ml$/"],
-      "additionalBranchPrefix": "ci-",
-      "semanticCommitType": "ci"
-    },
     {
       "description": "Pin digests for KIND node images",
       "matchPackageNames": ["/^kindest/node$/"],
